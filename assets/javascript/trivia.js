@@ -8,7 +8,8 @@ var q1 = {
         "Quito",
         "Montevideo",
         "Buenos Aires",
-        "Lima"
+        "Lima",
+        "Rio De Janiero"
     ]
 }
 var q2 = {
@@ -18,7 +19,9 @@ var q2 = {
         "Manchester",
         "Dublin",
         "London",
-        "Timbuktu"
+        "Timbuktu",
+        "Paris",
+        "Berlin"
     ]
 }
 var q3 = {
@@ -50,12 +53,13 @@ var questionArray = []
 
 
 function initializeGame () {
+    
     $("#questions").empty()
     $(".display-4").empty()
     $(".lead").empty()
     $(".btn-block").removeAttr("data-answer")
     $(".btn-block").off("click",checkAnswer)
-    
+    $(".display-4").text("World Capitals Quiz")
     questionsNum = 0;
     correctNum = 0;
     currentQuestion = "";
@@ -77,12 +81,13 @@ function initializeGame () {
 function startGame() {
     $("#questions").empty();
     restartCount();
-    $(".btn-block").on("click",checkAnswer)
     
  }
 function restartCount() {
     $(".display-4").empty();
+    
     displayQuestion();
+    $(".btn-block").on("click",checkAnswer)
     questionsNum++;
     intervalId = 0;
     $(".lead").text(":15")
@@ -110,42 +115,46 @@ function count() {
     $(".lead").text(seconds);
 }
 function displayQuestion() {
+    $("#answers").empty()
     index = Math.floor(Math.random()*questions.length)
     currentQuestion = questions[index]
     questions.splice(index,1)
-    var sAns = shuffleAnswers();
+    var answersLength = currentQuestion.answers.length
+    var sAns = shuffleAnswers(answersLength);
     console.log(sAns)
     
-    $('#questions').text(currentQuestion.question)
-
-    $("#button1").attr("data-answer",currentQuestion.answers[sAns[0]])
-    $("#button1").text(currentQuestion.answers[sAns[0]])
-    $("#button2").attr("data-answer",currentQuestion.answers[sAns[1]])
-    $("#button2").text(currentQuestion.answers[sAns[1]])
-    $("#button3").attr("data-answer",currentQuestion.answers[sAns[2]])
-    $("#button3").text(currentQuestion.answers[sAns[2]])
-    $("#button4").attr("data-answer",currentQuestion.answers[sAns[3]])
-    $("#button4").text(currentQuestion.answers[sAns[3]])
-}
-function checkAnswer() {
+    $('.display-4').text(currentQuestion.question)
+    for (var i=0;i<answersLength;i++) {
+        var answerButton = $('<button>')
+        answerButton.addClass("btn btn-primary btn-lg btn-block")
+        answerButton.attr("data-answer",currentQuestion.answers[sAns[i]])
+        answerButton.text(currentQuestion.answers[sAns[i]])
+        $("#answers").append(answerButton)
+    }
     
+}
+function checkAnswer() {  
     clearInterval(intervalId)
     var answer = $(this).attr("data-answer")
+    // $(".btn-block").removeAttr("data-answer")
+    $(".btn-block").off("click",checkAnswer)
     if (currentQuestion.correctAnswer==answer) {
       correctNum++
-      $('.display-4').text("That is correct!!!")  
+      $('.display-4').text("That is correct!!!")
+      $(this).css("background-color","green")  
       
       if (questionsNum>=4) {
          
-        endGame();
+        setTimeout(endGame,2000);
       } else {
           setTimeout(restartCount,2000)
       }
     } else {
+        $(this).css("background-color","red") 
         $('.display-4').text("That is incorrect, the correct answer is:  " + currentQuestion.correctAnswer)
         
         if (questionsNum>=4) {
-            endGame();
+            setTimeout(endGame,2000);
         } else {
             setTimeout(restartCount,2000)
         }
@@ -156,15 +165,19 @@ function endGame() {
     $('.display-4').text("Game Over!  You scored " + correctNum +"/" + questionsNum)
     $('.lead').text("Press any key to continue")
     $('#questions').empty();
-    $('.btn-block').text("Press Start ")
+    $("#answers").empty()
+    
     document.onkeyup = function () {
       initializeGame();  
     }
 }
 
-function shuffleAnswers() {
-    var array = [ 0, 1, 2, 3]
-    for (var i=array.length-1;i>0;i--) {
+function shuffleAnswers(length) {
+    var array = []
+    for (var i=0;i<length;i++) {
+        array.push(i)
+    }
+    for (var i=length-1;i>0;i--) {
         var pos = Math.floor(Math.random()*(i+1));
         var temp = array[i];
         array[i]=array[pos];
